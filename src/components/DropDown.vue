@@ -18,7 +18,6 @@ const props = defineProps({
 })
 const isOpen = ref(false)
 const toggleOpen = () => {
-    console.log(11111)
     isOpen.value = !isOpen.value
 }
 </script>
