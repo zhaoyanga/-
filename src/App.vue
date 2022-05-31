@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <GlobalHeader :user="currentUser" @login="login" @logOut="logOut"/>
+        <GlobalHeader :user="currentUser" @login="login" @logOut="logOut" />
         <ColumnList :list="testData" />
     </div>
 </template>
