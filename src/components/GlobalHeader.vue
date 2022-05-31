@@ -11,8 +11,11 @@
         </ul>
         <ul v-else class="list-inline mb-0">
             <li class="list-inline-item">
-                <DropDown :title="`你好 ${user.name}`" />
-                <!-- <a href="#" class="btn btn-outline-light my-2">你好 {{ user.name }}</a> -->
+                <DropDown :title="`你好 ${user.name}`">
+                    <DropDownItem><a href="#" class="dropdown-item">新建文章</a></DropDownItem>
+                    <DropDownItem disabled ><a href="#" class="dropdown-item">编辑资料</a></DropDownItem>
+                    <DropDownItem><a href="#" class="dropdown-item" @click="logOut">退出登录</a></DropDownItem>
+                </DropDown>
             </li>
         </ul>
     </nav>
@@ -21,6 +24,7 @@
 <script setup lang="ts">
 import { defineProps, PropType, defineEmits } from 'vue'
 import DropDown from './DropDown.vue'
+import DropDownItem from './DropDownItem.vue'
 export interface UserProps {
     isLogin: boolean;
     name?: string;
@@ -32,9 +36,12 @@ const props = defineProps({
         required: true
     }
 })
-const emit = defineEmits(['login'])
+const emit = defineEmits(['login', 'logOut'])
 const Login = () => {
     emit('login', true)
+}
+const logOut = () => {
+    emit('logOut', false)
 }
 </script>
 

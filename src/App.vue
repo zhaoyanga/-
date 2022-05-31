@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <GlobalHeader :user="currentUser" @login="login" />
+        <GlobalHeader :user="currentUser" @login="login" @logOut="logOut"/>
         <ColumnList :list="testData" />
     </div>
 </template>
@@ -42,6 +42,10 @@ const testData: ColumnProps[] = [
 const login = (val: boolean) => {
     currentUser.isLogin = val
     currentUser.name = '昭阳'
+}
+const logOut = (val: boolean) => {
+    currentUser.isLogin = val
+    currentUser.name = ''
 }
 </script>
 <style>

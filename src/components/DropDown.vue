@@ -1,15 +1,14 @@
 <template>
-    <div class="dropdown">
+    <div class="dropdown" ref="dropdownRef">
         <a href="#" class="btn btn-outline-light my-2 dropdown-toggle" @click.prevent="toggleOpen">{{ title }}</a>
         <ul class="dropdown-menu" :style="{ display: 'block' }" v-show="isOpen" aria-labelledby="dropdownMenuLink">
-            <li><a class="dropdown-item" href="#">新建文章</a></li>
-            <li><a class="dropdown-item" href="#">编辑资料</a></li>
+            <slot></slot>
         </ul>
     </div>
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref } from 'vue'
+import { defineProps, ref, onMounted, onUnmounted, defineExpose } from 'vue'
 const props = defineProps({
     title: {
         type: String,
@@ -20,6 +19,21 @@ const isOpen = ref(false)
 const toggleOpen = () => {
     isOpen.value = !isOpen.value
 }
+const dropdownRef = ref<null | HTMLElement>(null)
+const handler = (e: MouseEvent) => {
+    if (dropdownRef.value) {
+        if (!dropdownRef.value.contains(e.target as HTMLElement) && isOpen.value) {
+            isOpen.value = false
+        }
+    }
+}
+onMounted(() => {
+    document.addEventListener('click', handler)
+})
+onUnmounted(() => {
+    document.removeEventListener('click', handler)
+})
+
 </script>
 
 <style lang="less" scoped>
