@@ -2,14 +2,32 @@
     <div class="container">
         <GlobalHeader :user="currentUser" @login="login" @logOut="logOut" />
         <ColumnList :list="testData" />
+        <ValidateForm action="" @form-submit="submitForm">
+            <div class="mb-3">
+                <label class="form-label">邮箱地址</label>
+                <ValidateInput ref="inputRef" placeholder="请输入邮箱地址" type="text" class="hellp treer" :rules="emailRules"
+                    v-model="emailValue" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">密码</label>
+                <ValidateInput placeholder="请输入密码" type="password" class="hellp treer" :rules="passWordRules"
+                    v-model="passWordValue" />
+            </div>
+            <template #submit>
+                <button type="submit" class="btn btn-danger">保存</button>
+            </template>
+        </ValidateForm>
     </div>
 </template>
 
 <script setup lang="ts">
 import 'bootstrap/dist/css/bootstrap.min.css'
-import { reactive } from 'vue'
+import { ref, reactive } from 'vue'
 import ColumnList, { ColumnProps } from './components/ColumnList.vue'
 import GlobalHeader, { UserProps } from './components/GlobalHeader.vue'
+import ValidateInput, { RuleProps } from './components/ValidateInput.vue'
+import ValidateForm from './components/ValidateForm.vue'
+
 const currentUser = reactive<UserProps>({
     isLogin: false
 })
@@ -46,6 +64,23 @@ const login = (val: boolean) => {
 const logOut = (val: boolean) => {
     currentUser.isLogin = val
     currentUser.name = ''
+}
+const emailRules: RuleProps = [
+    { type: 'required', message: '电子邮箱地址不能为空' },
+    { type: 'email', message: '请输入正确的电子邮箱格式' }
+]
+const passWordRules: RuleProps = [
+    { type: 'required', message: '密码不能为空' },
+    { type: 'passWord', message: '请输入正确的密码' },
+    { type: 'range', min: { message: '你的密码至少包括六位，不能含有空格', length: 6 } },
+    { type: 'range', max: { message: '你的密码最多包括六位，不能含有空格', length: 6 } }
+]
+const emailValue = ref()
+const passWordValue = ref()
+
+const inputRef = ref<any>()
+const submitForm = (result: boolean) => {
+    console.log(result)
 }
 </script>
 <style>
