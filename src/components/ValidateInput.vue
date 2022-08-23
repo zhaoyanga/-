@@ -1,45 +1,52 @@
 <template>
-    <div class="validate-input-container pb-3">
-        <input v-bind="arrts" class="form-control" :class="{ 'is-invalid': inputRef.error }" :value="inputRef.val"
-            @blur="validateInput" @input="updateValue">
-        <span v-if="inputRef.error" class="invalid-feedback">{{ inputRef.message }}</span>
+    <div class="validate-input-container pb-3" style="position: relative">
+        <input v-if="tag !== 'textarea'" v-bind="arrts" class="form-control" :class="{ 'is-invalid': inputRef.error }"
+            v-model="inputRef.val" @blur="validateInput">
+        <textarea v-else v-bind="arrts" class="form-control" :class="{ 'is-invalid': inputRef.error }"
+            v-model="inputRef.val" @blur="validateInput"></textarea>
+        <span v-if="inputRef.error" class="invalid-feedback" style=" position: absolute">{{ inputRef.message }}</span>
     </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, PropType, defineProps, defineEmits, useAttrs, onMounted } from 'vue'
+import { reactive, PropType, defineProps, defineEmits, useAttrs, onMounted, computed } from 'vue'
 import emitter from '../ts/mitt'
 export interface RuleProp {
-    type: 'required' | 'email' | 'passWord' | 'range',
-    message?: string,
+    type: 'required' | 'email' | 'passWord' | 'range' | 'custom';
+    message?: string;
     min?: {
         message: string,
         length: number
-    },
+    };
     max?: {
         message: string,
         length: number
-    }
+    };
+    validator?: () => boolean
 }
-
+export type TagType = 'input' | 'textarea'
 export type RuleProps = RuleProp[]
 const emailReg = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
-const passWordReg = /^[0-9]*$/
+const passWordReg = /^\d*$/
 const props = defineProps({
     rules: Array as PropType<RuleProps>,
-    modelValue: String
+    modelValue: String,
+    tag: {
+        type: String as PropType<TagType>,
+        default: 'input'
+    }
 })
 const inputRef = reactive({
-    val: props.modelValue || '',
+    val: computed({ // computed新写法, input上可以直接写v-model，不用:value和@input事件来更新值
+        get: () => props.modelValue || '',
+        set: val => {
+            emit('update:modelValue', val)
+        }
+    }),
     error: false,
     message: ''
 })
 const emit = defineEmits(['update:modelValue', 'form-item-mounted'])
-const updateValue = (e: Event) => {
-    const targetValue = (e.target as HTMLInputElement).value
-    inputRef.val = targetValue
-    emit('update:modelValue', targetValue)
-}
 const validateInput = () => {
     if (props.rules) {
         const allPassed = props.rules.every(rule => {
@@ -64,6 +71,9 @@ const validateInput = () => {
                         inputRef.message = rule.max?.message as string
                     }
                     break
+                case 'custom':
+                    passed = rule.validator ? rule.validator() : true
+                    break
                 default:
                     break
             }
@@ -76,7 +86,7 @@ const validateInput = () => {
 }
 const arrts = useAttrs()
 const clearInput = () => {
-    inputRef.val = ''
+    // inputRef.val = ''
 }
 onMounted(() => {
     emitter.emit('form-item-created', validateInput)
