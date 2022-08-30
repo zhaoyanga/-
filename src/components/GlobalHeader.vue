@@ -15,6 +15,9 @@
                     <DropDownItem>
                         <router-link to="/create" class="dropdown-item">新建文章</router-link>
                     </DropDownItem>
+                    <DropDownItem>
+                        <router-link :to="`/column/${user.column}`" class="dropdown-item">我的专栏</router-link>
+                    </DropDownItem>
                     <DropDownItem disabled><a href="#" class="dropdown-item">编辑资料</a></DropDownItem>
                     <DropDownItem><a href="#" class="dropdown-item" @click="store.commit('logOut')">退出登录</a></DropDownItem>
                 </DropDown>

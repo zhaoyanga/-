@@ -69,7 +69,7 @@ const getAndCommit = async (
   commit(mutationsName, data)
   return data
 }
-type methosType = 'post' | 'patch'
+type methosType = 'post' | 'patch' | 'delete'
 const postAndCommit = async (
   url: string,
   mutationsName: string,
@@ -83,11 +83,12 @@ const postAndCommit = async (
 }
 // const asyncAndCommit = async (url: string,
 //   mutationsName: string,
-//   commit: Commit, config: AxiosRequestConfig = { method: 'get' }) => {
-//     const { data } = await require(url)
+//   commit: Commit, config: AxiosRequestConfig = { method: 'post' }) => {
+//     const { data } = await require(url, config)
 //     commit(mutationsName, data)
 //     return data
 // }
+
 const store = createStore<GlobalDataProps>({
   state: {
     loading: false,
@@ -145,8 +146,12 @@ const store = createStore<GlobalDataProps>({
     },
     // 修改文章
     updataPost ({ commit }, { id, payload }) {
-      return postAndCommit(`/posts/${id}`, 'updataPost', commit, payload, 'patch'
-      )
+      return postAndCommit(`/posts/${id}`, 'updataPost', commit, payload, 'patch')
+      // return asyncAndCommit(`/posts/${id}`, 'updataPost', commit, { method: 'patch', data: payload })
+    },
+    // 删除文章
+    deletePost ({ commit }, id) {
+      return postAndCommit(`/posts/${id}`, 'deletePost', commit, '', 'delete')
     }
   },
   mutations: {
@@ -194,6 +199,9 @@ const store = createStore<GlobalDataProps>({
           return post
         }
       })
+    },
+    deletePost (state, { data }) {
+      state.posts = state.posts.filter(post => post._id !== data._id)
     }
   }
 })

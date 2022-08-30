@@ -55,4 +55,8 @@ const key = computed(() => route.name ? new Date() : new Date().getTime())
 // const H1 = () => [h('h1', 12), h('div', 34)]
 </script>
 <style>
+body.modal-open {
+    height: 100vh;
+    overflow: hidden;
+}
 </style>

@@ -8,7 +8,7 @@ require.interceptors.request.use((config) => {
   store.commit('setLoading', true)
   store.commit('setError', { status: false, message: '' })
   let icode = '74000DA37FCD8A7F'
-  if (config.method === 'get') {
+  if (config.method === 'get' || config.method === 'delete') {
     config.params = { ...config.params, icode }
   } else if (config.method === 'post') {
     if (config.data instanceof FormData) {

@@ -5,9 +5,9 @@
                 <button class="btn btn-danger">删除</button>
             </slot>
         </div>
-        <div @click="triggerUpload">
-            <slot name="top">
-                <button class="btn btn-primary">点击上传</button>
+        <div>
+            <slot name="top" :triggerUpload="triggerUpload">
+                <button class="btn btn-primary" @click.prevent="triggerUpload">点击上传</button>
             </slot>
         </div>
         <div class="file-upload-container" v-bind="$attrs" @click.prevent="triggerUpload">
@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, PropType, defineEmits, watch } from 'vue'
+import { ref, defineProps, PropType, defineEmits, watch, defineExpose } from 'vue'
 import require from '../axios'
 type UploadStatus = 'ready' | 'loading' | 'success' | 'error'
 type CheckFunction = (file: File) => boolean
@@ -105,6 +105,9 @@ const deleteFile = () => {
         emits('deleteFile', true)
     }
 }
+// defineExpose({
+//     deleteFile
+// })
 </script>
 <script lang="ts">
 export default {

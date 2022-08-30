@@ -1,34 +1,46 @@
 <template>
   <div class="post-detail-page">
+    <Modal :visible="modalIsVisibel" title="删除文章" @modal-on-close="modalIsVisibel = false"
+      @modal-on-confirm="hideAndDelete">
+      <p>确定要删除这篇文章吗?</p>
+      <template #modalFooter>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+          @click="modalIsVisibel = false">取消</button>
+        <button type="button" class="btn btn-primary" @click="hideAndDelete">确认</button>
+      </template>
+    </Modal>
     <article class="w-75 mx-auto mb-5 pb-3" v-if="posts">
       <h2 class="mb-4">{{ posts.title }}</h2>
       <div class="user-profile-component border-top border-bottom py-3 mb-5 align-items-center row g-0">
         <div class="col">
           <UserProfile :user="posts.author" v-if="typeof posts.author === 'object'" />
         </div>
-        <span class="text-muted col text-right font-italic">发表于：{{ posts.createdAt }}</span>
+        <span class="text-muted text-right font-italic">发表于：{{ posts.createdAt }}</span>
       </div>
       <img :src="currentImageUrl" :alt="posts.title" class="rounded-lg img-fluid my-4" v-if="currentImageUrl">
       <div v-html="postHtml"></div>
       <div v-if="showEdit" class="btn-group mt-5">
-        <router-link type="button" :to="{name: 'create', query: { id:posts._id }}"
-        class="btn btn-success">编辑</router-link>
-        <button type="button" class="btn btn-danger">删除</button>
+        <router-link type="button" :to="{ name: 'create', query: { id: posts._id } }" class="btn btn-success">编辑
+        </router-link>
+        <button type="button" class="btn btn-danger" @click.prevent="modalIsVisibel = true">删除</button>
       </div>
     </article>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
-import { useRoute } from 'vue-router'
-import { GlobalDataProps, PostProps, ImageProps, UserProps } from '../store'
+import { useRoute, useRouter } from 'vue-router'
+import { GlobalDataProps, PostProps, ImageProps, UserProps, ResType } from '../store'
 import UserProfile from '../components/UserProfile.vue'
 import MarkdownIt from 'markdown-it'
-import { router } from '@/router'
+import Modal from '../components/Modal.vue'
+import createMessage from '@/hooks/createMessage'
 const store = useStore<GlobalDataProps>()
 const route = useRoute()
+const router = useRouter()
+const modalIsVisibel = ref(false)
 const currentId = route.params.id
 const md = new MarkdownIt()
 
@@ -50,6 +62,18 @@ const currentImageUrl = computed(() => {
     return null
   }
 })
+const hideAndDelete = () => {
+  modalIsVisibel.value = false
+  store.dispatch('deletePost', currentId).then((res: ResType<PostProps>) => {
+    createMessage('删除成功', 'success', 2000)
+    router.push({
+      name: 'column',
+      params: {
+        id: res.data.column
+      }
+    })
+  })
+}
 const showEdit = computed(() => {
   const { isLogin, _id } = store.state.user
   if (posts.value && posts.value.author && isLogin) {

@@ -1,13 +1,11 @@
 <template>
   <div class="create-post-page">
-    <h4>{{isEditMode ? '编辑文章' : '新建文章'}}</h4>
-    <Uploader class="d-flex align-items-center justify-content-center bg-light text-secondary w-100 my-4"
+    <h4>{{ isEditMode ? '编辑文章' : '新建文章' }}</h4>
+    <Uploader ref="uploader" class="d-flex align-items-center justify-content-center bg-light text-secondary w-100 my-4"
       :action="'/upload'" :beforeUpload="beforeUpload" @file-uploaded="onFileUploaded" @deleteFile="deleteFile"
       @upload-error="onFileError" :uploaded="uploadedData">
-      <template #top>
-        <div class="d-flex align-items-center">
-          <button class="btn btn-primary">点击上传图片</button>
-        </div>
+      <template #top="{ triggerUpload }">
+        <button class="btn btn-primary" @click="triggerUpload">点击上传图片</button>
       </template>
       <template #loading>
         <div class="d-flex align-items-center">
@@ -27,11 +25,12 @@
       </div>
       <div class="mb-3">
         <label class="form-label">文章详情：</label>
+        <Editor v-model="contentVal" :options="editorOptions" ref="editorRef" />
         <validate-input rows="10" type="text" tag="textarea" placeholder="请输入文章详情" :rules="contentRules"
           v-model="contentVal" />
       </div>
       <template #submit>
-        <button class="btn btn-primary btn-large">{{isEditMode ? '更新文章' : '发表文章'}}</button>
+        <button class="btn btn-primary btn-large">{{ isEditMode ? '更新文章' : '发表文章' }}</button>
       </template>
     </validate-form>
   </div>
@@ -47,13 +46,29 @@ import Uploader from '@/components/Uploader.vue'
 import createMessage from '../hooks/createMessage'
 import ValidateInput, { RuleProps } from '../components/ValidateInput.vue'
 import { beforeUploadCheck } from '../hooks/helper'
+// import EasyMDE from 'easymde'
+import EasyMde, { Options } from 'easymde'
+import Editor from '@/components/Editor.vue'
+interface EditorInstance {
+  clear: () => void;
+  getMdeInstance: () => EasyMde | null;
+}
+// interface aaaa {
+//   deleteFile: () => void;
+// }
 const uploadedData = ref()
 const router = useRouter()
 const route = useRoute()
 const isEditMode = !!route.query.id
 const store = useStore<GlobalDataProps>()
 const titleVal = ref('')
+// 富文本编辑器
+// const textArea = ref<null | HTMLTextAreaElement>(null)
+const editorRef = ref<null | EditorInstance>()
 let imageId = ''
+const editorOptions: Options = {
+  spellChecker: false // 拼写检查，没有红线
+}
 const titleRules: RuleProps = [
   { type: 'required', message: '文章标题不能为空' }
 ]
@@ -111,7 +126,18 @@ const onFileError = (error: any) => {
 const deleteFile = (res: any) => {
   console.log(res)
 }
+// const uploader = ref<null | aaaa>()
 onMounted(() => {
+  // if (textArea.value) {
+  //   const easyMdeInstance = new EasyMDE({ element: textArea.value })
+  // }
+  // if (uploader.value) {
+  //   console.log(uploader.value)
+  // }
+  if (editorRef.value) {
+    console.log(editorRef.value.getMdeInstance())
+  }
+  console.log()
   if (isEditMode) {
     store.dispatch('fetchPost', route.query.id).then((res: ResType<PostProps>) => {
       const currentPost = res.data
